@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 import { auth } from '../../firebase/firebase';
 
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -13,6 +18,8 @@ import './signin.styles.scss';
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const navigate = useNavigate();
 
   const emailChangeHandler = (e) => {
     setEmail(e.target.value);
@@ -41,15 +48,21 @@ const SignIn = () => {
           timestamp: serverTimestamp(),
         });
       }
-
-      console.log(result.user);
+      navigate('/shop');
     } catch (error) {
       console.log(error);
     }
   };
 
-  const formSubmitHandler = (e) => {
+  const formSubmitHandler = async (e) => {
     e.preventDefault();
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+
+      navigate('/');
+    } catch (error) {
+      console.log(error.messages);
+    }
   };
 
   return (

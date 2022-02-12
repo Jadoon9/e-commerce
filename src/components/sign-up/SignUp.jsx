@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router';
 import FormInput from '../form-input/FormInput';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../../firebase/firebase';
@@ -15,7 +16,7 @@ const SignUp = () => {
     confirmPassword: '',
   });
   const { displayName, email, password, confirmPassword } = formData;
-
+  const navigate = useNavigate();
   const inputChangeHandler = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -52,6 +53,7 @@ const SignUp = () => {
           timestamp: serverTimestamp(),
         });
       }
+      navigate('/shop');
     } catch (error) {
       console.log(error.message);
     }
