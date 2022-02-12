@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '../../firebase/firebase';
+
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import db from '../../firebase/firebase.js';
+
 import CustomButton from '../custom-button/CustomButton';
 import FormInput from '../form-input/FormInput';
+
 import './signin.styles.scss';
 
 const SignIn = () => {
@@ -10,8 +17,35 @@ const SignIn = () => {
   const emailChangeHandler = (e) => {
     setEmail(e.target.value);
   };
+
   const passwordChangeHandler = (e) => {
     setPassword(e.target.value);
+  };
+
+  const googleAuthHandler = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      //* Create doc Ref in db
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
+
+      //* Check if user exist there
+      if (!docSnap.exists()) {
+        await setDoc(doc(db, 'users', user.uid), {
+          id: user.uid,
+          name: user.displayName,
+          email: user.email,
+          timestamp: serverTimestamp(),
+        });
+      }
+
+      console.log(result.user);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const formSubmitHandler = (e) => {
@@ -40,7 +74,12 @@ const SignIn = () => {
           label='password'
           required
         />
-        <CustomButton type='submit'>Sign In </CustomButton>
+        <div className='buttons'>
+          <CustomButton type='submit'>Sign In </CustomButton>
+          <CustomButton onClick={googleAuthHandler} isGoogleButton>
+            Google Sign In
+          </CustomButton>
+        </div>
       </form>
     </div>
   );
