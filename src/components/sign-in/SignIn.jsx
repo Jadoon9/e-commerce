@@ -34,7 +34,7 @@ const SignIn = () => {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
+      navigate('/shop');
       //* Create doc Ref in db
       const docRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(docRef);
@@ -48,7 +48,6 @@ const SignIn = () => {
           timestamp: serverTimestamp(),
         });
       }
-      navigate('/shop');
     } catch (error) {
       console.log(error);
     }
